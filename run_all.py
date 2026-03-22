@@ -129,10 +129,19 @@ def run_gateway_bot(token, comments_module, bot_name_label):
 def run_main_bot():
     token = os.getenv('TOKEN_MAIN')
     if not token:
-        print("Ошибка: TOKEN_MAIN не найден, основной бот не запущен.")
+        print("Ошибка: TOKEN_MAIN не найден")
         return
 
+    # ВАЖНО: Инициализируем данные перед запуском
+    import data
+    data.init_data()
+
     bot = telebot.TeleBot(token)
+
+    # Проверка
+    if not data.sites:
+        print("Ошибка: Список сайтов пуст!")
+        return
 
     # Вспомогательные функции (из твоего основного бота)
     def get_site_keyboard(site_id):
