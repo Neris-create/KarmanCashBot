@@ -1,25 +1,23 @@
 import os
 
 # --- БАЗА ДАННЫХ САЙТОВ ---
-# Мы создаем список sites пустым, а потом заполняем его в функции init_data
 sites = []
 
 def init_data():
-    # Эта функция берет ссылки из переменных окружения (.env)
-    # и заполняет список сайтов.
     sites.clear()
 
-    # Получаем ссылки из .env (если ссылки нет, ставим заглушку)
+    # Загружаем ссылки
     link_unu = os.getenv('UNU_LINK', 'https://unu.im')
     link_soc = os.getenv('SOC_PUBLIC', 'https://socpublic.com')
     link_mj = os.getenv('MJ_PUBLIC', 'https://mjpublic.com')
     link_task = os.getenv('TASK_PAY', 'https://taskpay.ru')
 
+    # --- UNU ---
     sites.append({
         "id": 0,
         "name": "🔥 UNU (Выбор редакции)",
         "desc": (
-             "📌 <b>О чем:</b> Комментарии, отзывы, активность.\n"
+            "📌 <b>О чем:</b> Комментарии, отзывы, активность.\n"
             "💰 <b>Цена задания:</b> от 3₽ до 20₽.\n"
             "💸 <b>Мин. вывод:</b> от 100₽.\n"
             "🏦 <b>Куда выводят:</b>\n"
@@ -33,6 +31,7 @@ def init_data():
         "button_text": "Перейти на UNU"
     })
 
+    # --- Socpublic ---
     sites.append({
         "id": 1,
         "name": "🔵 Socpublic",
@@ -52,10 +51,11 @@ def init_data():
             "⚡️ <b>Вердикт:</b> Самый надежный старичок. Минимальный вывод на любой тапочек."
         ),
         "link": link_soc,
-        "button_text": "Перейти на Socpublic"
-        "is_partner": True  # <-- ВОТ ЭТА СТРОКА
+        "button_text": "Перейти на Socpublic",
+        "is_partner": True
     })
 
+    # --- MJ Public ---
     sites.append({
         "id": 2,
         "name": "🟣 MJ Public",
@@ -72,11 +72,12 @@ def init_data():
         "button_text": "Перейти на MJ Public"
     })
 
+    # --- TaskPay ---
     sites.append({
         "id": 3,
         "name": "🟠 TaskPay",
         "desc": (
-            "📌 <b>О чем:</b> Тестирование приложений, отзывы, лайки.\n"
+             "📌 <b>О чем:</b> Тестирование приложений, отзывы, лайки.\n"
             "💰 <b>Цена задания:</b> от 5₽ до 50₽.\n"
             "💸 <b>Мин. вывод:</b> от 100₽.\n"
             "🏦 <b>Куда выводят:</b>\n"
@@ -86,13 +87,6 @@ def init_data():
             "⚡️ <b>Вердикт:</b> Задания сложнее, но плата выше."
         ),
         "link": link_task,
-        "button_text": "Перейти на TaskPay"
-        "is_partner": True  # <-- ВОТ ЭТА СТРОКА
+        "button_text": "Перейти на TaskPay",
+        "is_partner": True
     })
-
-# Список для раздела "Стать партнером"
-partner_sites = [
-    {"name": "Socpublic", "link": os.getenv('SOC_PUBLIC')},
-    {"name": "TaskPay", "link": os.getenv('TASK_PAY')},
-    {"name": "UNU", "link": os.getenv('UNU_LINK')}
-]

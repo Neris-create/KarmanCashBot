@@ -14,7 +14,7 @@ import comments_cash
 # Импортируем данные для основного бота (ссылки на UNU и т.д.)
 # (Предполагается, что у тебя есть файл data.py с переменной sites)
 try:
-    from data import sites, partner_sites
+    from data import sites
 except ImportError:
     print("Файл data.py не найден, основной бот не запустится.")
     sites = []
