@@ -195,13 +195,31 @@ def run_main_bot():
             bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=f"<b>{site['name']}</b>\n\n{site['desc']}", parse_mode='HTML', reply_markup=get_site_keyboard(next_id))
 
         elif call.data == "open_partner":
-            text = "💼 <b>Хочешь пассивный доход?</b>\n\n... (текст про партнерку) ..."
+            text = (
+                "💼 <b>Хочешь пассивный доход?</b>\n\n"
+                "Ты можешь зарабатывать не только кликая кнопками, но и приглашая друзей.\n\n"
+                "Как это работает:\n"
+                "1. Регистрируешься на сайтах ниже.\n"
+                "2. В личном кабинете находишь раздел «Партнерская программа».\n"
+                "3. Берешь свою ссылку и отправляешь друзьям.\n\n"
+                "💰 <b>Твой доход:</b>\n"
+                "Ты получаешь % от заработка друзей.\n"
+                "А на этих сайтах есть <b>2 уровня рефералов</b>!\n"
+                "Это значит, что ты получаешь % даже с тех, кого привели твои друзья!\n\n"
+                "👇 <b>Где брать ссылки:</b>"
+            )
             markup = types.InlineKeyboardMarkup()
-            for p_site in partner_sites:
-                btn = types.InlineKeyboardButton(text=f"🔑 {p_site['name']}", url=p_site['link'])
-                markup.add(btn)
-            btn_back = types.InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_start")
+
+            # Перебираем все сайты
+            for site in sites:
+                # Если у сайта есть пометка is_partner - выводим кнопку
+                if site.get('is_partner'):
+                    btn = types.InlineKeyboardButton(text=f"🔑 {site['name']}", url=site['link'])
+                    markup.add(btn)
+
+            btn_back = types.InlineKeyboardButton(text="🔙 Назад в меню", callback_data="back_to_start")
             markup.add(btn_back)
+
             bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=text, parse_mode='HTML', reply_markup=markup)
 
         elif call.data == "back_to_start":
