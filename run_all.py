@@ -4,6 +4,7 @@ from telebot import types
 from dotenv import load_dotenv
 import threading
 import random
+import time
 
 # --- ИМПОРТЫ ---
 # Импортируем комментарии для входных ботов
@@ -46,7 +47,6 @@ def run_gateway_bot(token, comments_module, bot_name_label):
         chat_id = message.chat.id
         text = (
             "🎰 <b>Система активного заработка</b>\n\n"
-            "Анализирую твой регион... Найдено предложений: 15.\n"
             "⚡️ <b>Доступ к высокооплачиваемым заданиям:</b> <u>Разблокирован</u>.\n\n"
             "⚠️ <b>Внимание:</b> Чтобы отсеять ботов, пройдите быструю проверку.\n\n"
             "👇 Нажмите кнопку ниже, чтобы начать."
@@ -72,7 +72,7 @@ def run_gateway_bot(token, comments_module, bot_name_label):
         bot.edit_message_text(chat_id=chat_id, message_id=call.message.message_id, text=text, parse_mode='HTML')
         users_db[chat_id] = {'step': 'wait_entry_photo', 'count': 0}
 
-    @bot.content_types(content_types=['photo'])
+    @bot.message_handler(content_types=['photo'])
     def handle_photos(message):
         chat_id = message.chat.id
         user_data = users_db.get(chat_id)
@@ -80,14 +80,28 @@ def run_gateway_bot(token, comments_module, bot_name_label):
             bot.send_message(chat_id, "Напишите /start для начала работы.")
             return
 
+        # --- ЭТАП 1 (Первое фото) ---
         if user_data['step'] == 'wait_entry_photo':
-            bot.send_message(chat_id, "✅ <b>Отлично! Комментарий найден.</b>", parse_mode='HTML')
+            # 1. Показываем "печатает..."
+            bot.send_chat_action(chat_id, 'typing')
+            # 2. Ждем 2 секунды (имитация анализа)
+            time.sleep(2)
+            # 3. Отвечаем
+            bot.send_message(chat_id, "✅ <b>Отлично! Комментарий проверен и найден.</b>", parse_mode='HTML')
             start_spam_stage(chat_id)
+
+        # --- ЭТАП 2 (10 фото) ---
         elif user_data['step'] == 'wait_spam_photo':
+            # 1. Показываем "печатает..."
+            bot.send_chat_action(chat_id, 'typing')
+            # 2. Ждем 1-2 секунды
+            time.sleep(2)
+
             user_data['count'] += 1
             current_count = user_data['count']
+
             if current_count < SPAM_TASK_LIMIT:
-                bot.send_message(chat_id, f"✅ <b>Принято {current_count}/{SPAM_TASK_LIMIT}</b>\n\nПродолжаем.", parse_mode='HTML')
+                bot.send_message(chat_id, f"✅ <b>Скриншот проверен. Принято {current_count}/{SPAM_TASK_LIMIT}</b>\n\nПродолжаем.", parse_mode='HTML')
                 send_spam_task(chat_id)
             else:
                 finish_verification(chat_id)
