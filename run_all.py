@@ -70,7 +70,7 @@ def run_gateway_bot(token, comments_module, bot_name_label):
             "📸 Пришлите скриншот вашего ответа сюда."
         )
         bot.edit_message_text(chat_id=chat_id, message_id=call.message.message_id, text=text, parse_mode='HTML')
-        users_db[chat_id] = {'step': 'wait_entry_photo', 'count': 0}
+        users_db[chat_id] = {'step': 'wait_entry_photo', 'count': 0, 'used_photos': []}
 
     @bot.message_handler(content_types=['photo'])
     def handle_photos(message):
@@ -80,28 +80,43 @@ def run_gateway_bot(token, comments_module, bot_name_label):
             bot.send_message(chat_id, "Напишите /start для начала работы.")
             return
 
+        # --- ПРОВЕРКА НА ПОВТОР ---
+        # Получаем ID самого большого фото (оно самое качественное)
+        file_id = message.photo[-1].file_id
+
+        # Проверяем, есть ли этот ID в списке использованных
+        if file_id in user_data.get('used_photos', []):
+            bot.send_message(chat_id, "🚫 <b>Ошибка!</b>\nЭто фото вы уже отправляли. Сделайте скриншот другого комментария.", parse_mode='HTML')
+            return # Прерываем выполнение, не засчитываем
+
         # --- ЭТАП 1 (Первое фото) ---
         if user_data['step'] == 'wait_entry_photo':
-            # 1. Показываем "печатает..."
+            # Добавляем фото в базу
+            user_data['used_photos'].append(file_id)
+
+            bot.send_message(chat_id, "📸 <i>Анализируем скриншот...</i>", parse_mode='HTML')
             bot.send_chat_action(chat_id, 'typing')
-            # 2. Ждем 2 секунды (имитация анализа)
-            time.sleep(2)
-            # 3. Отвечаем
-            bot.send_message(chat_id, "✅ <b>Отлично! Комментарий проверен и найден.</b>", parse_mode='HTML')
+            wait_time = random.randint(1, 3)
+            time.sleep(wait_time)
+
+            bot.send_message(chat_id, "✅ <b>Отлично! Комментарий найден.</b>", parse_mode='HTML')
             start_spam_stage(chat_id)
 
         # --- ЭТАП 2 (10 фото) ---
         elif user_data['step'] == 'wait_spam_photo':
-            # 1. Показываем "печатает..."
+            # Добавляем фото в базу
+            user_data['used_photos'].append(file_id)
+
+            bot.send_message(chat_id, "🔍 <i>Проверяем наличие комментария...</i>", parse_mode='HTML')
             bot.send_chat_action(chat_id, 'typing')
-            # 2. Ждем 1-2 секунды
-            time.sleep(2)
+            wait_time = random.randint(1, 3)
+            time.sleep(wait_time)
 
             user_data['count'] += 1
             current_count = user_data['count']
 
             if current_count < SPAM_TASK_LIMIT:
-                bot.send_message(chat_id, f"✅ <b>Скриншот проверен. Принято {current_count}/{SPAM_TASK_LIMIT}</b>\n\nПродолжаем.", parse_mode='HTML')
+                bot.send_message(chat_id, f"✅ <b>Принято {current_count}/{SPAM_TASK_LIMIT}</b>\n\nПродолжаем.", parse_mode='HTML')
                 send_spam_task(chat_id)
             else:
                 finish_verification(chat_id)
