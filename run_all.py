@@ -11,6 +11,7 @@ import time
 import comments_zatoon
 import comments_plus
 import comments_cash
+import comments_zatoon_work
 
 # Импортируем данные для основного бота (ссылки на UNU и т.д.)
 # (Предполагается, что у тебя есть файл data.py с переменной sites)
@@ -264,7 +265,7 @@ def run_main_bot():
 
 # --- ГЛАВНЫЙ ЗАПУСК ---
 if __name__ == '__main__':
-    # Запускаем Основного бота в отдельном потоке
+    # Запускаем Основного бота
     t_main = threading.Thread(target=run_main_bot)
     t_main.start()
 
@@ -273,8 +274,15 @@ if __name__ == '__main__':
     t_plus = threading.Thread(target=run_gateway_bot, args=(os.getenv('TOKEN_PLUS'), comments_plus, "PlusRubBot"))
     t_cash = threading.Thread(target=run_gateway_bot, args=(os.getenv('TOKEN_CASH'), comments_cash, "CashKarmanBot"))
 
+    # --- НОВЫЙ БОТ ---
+    t_zatoon_work = threading.Thread(target=run_gateway_bot, args=(os.getenv('TOKEN_ZATOON_WORK'), comments_zatoon_work, "ZatoonWorkBot"))
+
+    # Запускаем потоки
     if os.getenv('TOKEN_ZATOON'): t_zatoon.start()
     if os.getenv('TOKEN_PLUS'): t_plus.start()
     if os.getenv('TOKEN_CASH'): t_cash.start()
+
+    # Запуск нового бота
+    if os.getenv('TOKEN_ZATOON_WORK'): t_zatoon_work.start()
 
     print("=== ВСЕ БОТЫ ЗАПУЩЕНЫ ===")
